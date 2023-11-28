@@ -74,15 +74,14 @@ export const useConversation = (
         socket.send(stringify(audioMessage));
     });
   };
-  
+
   // once the conversation is connected, stream the microphone audio into the socket
   React.useEffect(() => {
     if (!recorder || !socket) return;
     if (status === "connected") {
       if (active)
         recorder.addEventListener("dataavailable", recordingDataListener);
-      else
-        recorder.removeEventListener("dataavailable", recordingDataListener);
+      else recorder.removeEventListener("dataavailable", recordingDataListener);
     }
   }, [recorder, socket, status, active]);
 
@@ -205,6 +204,8 @@ export const useConversation = (
   });
 
   const startConversation = async () => {
+    console.log(" ");
+    console.log("startConversation");
     if (!audioContext || !audioAnalyser) return;
     setStatus("connecting");
 
@@ -227,7 +228,10 @@ export const useConversation = (
       error = new Error("See console for error details");
     };
     socket.onmessage = (event) => {
+      console.log(" ");
+      console.log("socket.onmessage: ", event);
       const message = JSON.parse(event.data);
+      console.log("message: ", message);
       if (message.type === "websocket_audio") {
         setAudioQueue((prev) => [...prev, Buffer.from(message.data, "base64")]);
       } else if (message.type === "websocket_ready") {
@@ -301,7 +305,7 @@ export const useConversation = (
       samplingRate: micSettings.sampleRate || audioContext.sampleRate,
       audioEncoding: "linear16" as AudioEncoding,
     };
-    console.log("Input audio metadata", inputAudioMetadata);
+    console.log("[test] Input audio metadata", inputAudioMetadata);
 
     const outputAudioMetadata = {
       samplingRate:
