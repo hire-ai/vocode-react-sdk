@@ -45,4 +45,5 @@ export type AudioMetadata = {
 export type Transcript = {
   sender: string;
   text: string;
+  timestamp: number;
 };

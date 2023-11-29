@@ -236,12 +236,15 @@ export const useConversation = (
         setStatus("connected");
       } else if (message.type == "websocket_transcript") {
         console.log("message: ", message);
-        setTranscripts((prev) => {
-          prev.push({
+        setTranscripts((messages) => {
+          console.log("PRE messages: ", messages);
+          messages.push({
             sender: message.sender,
             text: message.text,
+            timestamp: message.timestamp,
           });
-          return prev;
+          console.log("POST messages: ", messages);
+          return messages;
         });
       }
     };
