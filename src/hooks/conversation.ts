@@ -235,22 +235,12 @@ export const useConversation = (
       } else if (message.type === "websocket_ready") {
         setStatus("connected");
       } else if (message.type == "websocket_transcript") {
+        console.log("message: ", message);
         setTranscripts((prev) => {
-          let last = prev.pop();
-          if (last && last.sender === message.sender) {
-            prev.push({
-              sender: message.sender,
-              text: last.text + " " + message.text,
-            });
-          } else {
-            if (last) {
-              prev.push(last);
-            }
-            prev.push({
-              sender: message.sender,
-              text: message.text,
-            });
-          }
+          prev.push({
+            sender: message.sender,
+            text: message.text,
+          });
           return prev;
         });
       }
