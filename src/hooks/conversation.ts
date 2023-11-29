@@ -20,7 +20,11 @@ import {
   StartMessage,
   StopMessage,
 } from "../types/vocode/websocket";
-import { DeepgramTranscriberConfig, TranscriberConfig } from "../types";
+import {
+  DeepgramTranscriberConfig,
+  TranscriberConfig,
+  CallDetails,
+} from "../types";
 import { isSafari, isChrome } from "react-device-detect";
 import { Buffer } from "buffer";
 
@@ -40,11 +44,12 @@ export const useConversation = (
   analyserNode: AnalyserNode | undefined;
   transcripts: Transcript[];
   currentSpeaker: CurrentSpeaker;
-  conversationId: string | undefined;
+  callDetails: CallDetails | undefined;
 } => {
   const [audioContext, setAudioContext] = React.useState<AudioContext>();
   const [audioAnalyser, setAudioAnalyser] = React.useState<AnalyserNode>();
-  const [conversationId, setConversationId] = React.useState<string>();
+  const [callDetails, setCallDetails] = React.useState<CallDetails>();
+
   const [audioQueue, setAudioQueue] = React.useState<Buffer[]>([]);
   const [currentSpeaker, setCurrentSpeaker] =
     React.useState<CurrentSpeaker>("none");
@@ -209,6 +214,7 @@ export const useConversation = (
     console.log(" ");
     console.log("startConversation");
     setTranscripts([]);
+    setCallDetails(undefined);
     if (!audioContext || !audioAnalyser) return;
     setStatus("connecting");
 
@@ -236,6 +242,7 @@ export const useConversation = (
       if (message.type === "websocket_audio") {
         setAudioQueue((prev) => [...prev, Buffer.from(message.data, "base64")]);
       } else if (message.type === "websocket_ready") {
+        setCallDetails(message.callDetails as CallDetails);
         setStatus("connected");
       } else if (message.type == "websocket_transcript") {
         console.log("message: ", message);
@@ -381,6 +388,6 @@ export const useConversation = (
     analyserNode: audioAnalyser,
     transcripts,
     currentSpeaker,
-    conversationId,
+    callDetails,
   };
 };

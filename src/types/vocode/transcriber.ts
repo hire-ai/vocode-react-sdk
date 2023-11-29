@@ -23,6 +23,15 @@ export interface PunctuationEndpointingConfig extends EndpointingConfig {
   timeCutoffSeconds?: number;
 }
 
+export interface CallDetails {
+  call_Id: string;
+  caller_Id: string;
+  org_id: string;
+  org_location_id: string;
+  from_phone: string;
+  to_phone: string;
+}
+
 export interface TranscriberConfig {
   type: string;
   samplingRate: number;
@@ -44,7 +53,7 @@ export interface GoogleTranscriberConfig extends TranscriberConfig {
   type: "transcriber_google";
   model?: string;
   shouldWarmupModel?: boolean;
-  languageCode?: string
+  languageCode?: string;
 }
 
 export interface AssemblyAITranscriberConfig extends TranscriberConfig {
