@@ -229,9 +229,8 @@ export const useConversation = (
     };
     socket.onmessage = (event) => {
       console.log(" ");
-      console.log("socket.onmessage: ", event);
       const message = JSON.parse(event.data);
-      console.log("message: ", message);
+      console.log("WS message.type: ", message.type);
       if (message.type === "websocket_audio") {
         setAudioQueue((prev) => [...prev, Buffer.from(message.data, "base64")]);
       } else if (message.type === "websocket_ready") {
@@ -305,14 +304,12 @@ export const useConversation = (
       samplingRate: micSettings.sampleRate || audioContext.sampleRate,
       audioEncoding: "linear16" as AudioEncoding,
     };
-    console.log("[test] Input audio metadata", inputAudioMetadata);
 
     const outputAudioMetadata = {
       samplingRate:
         config.audioDeviceConfig.outputSamplingRate || audioContext.sampleRate,
       audioEncoding: "linear16" as AudioEncoding,
     };
-    console.log("Output audio metadata", inputAudioMetadata);
 
     let startMessage;
     if (
