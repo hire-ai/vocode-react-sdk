@@ -236,16 +236,24 @@ export const useConversation = (
         setStatus("connected");
       } else if (message.type == "websocket_transcript") {
         console.log("message: ", message);
-        setTranscripts((messages) => {
-          console.log("PRE messages: ", messages);
-          messages.push({
+        // setTranscripts((messages) => {
+        //   console.log("PRE messages: ", messages);
+        //   messages.push({
+        //     sender: message.sender,
+        //     text: message.text,
+        //     timestamp: message.timestamp,
+        //   });
+        //   console.log("POST messages: ", messages);
+        //   return messages;
+        // });
+        setTranscripts((prevMessages) => [
+          ...prevMessages,
+          {
             sender: message.sender,
             text: message.text,
             timestamp: message.timestamp,
-          });
-          console.log("POST messages: ", messages);
-          return messages;
-        });
+          },
+        ]);
       }
     };
     socket.onclose = () => {
