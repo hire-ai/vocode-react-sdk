@@ -40,9 +40,11 @@ export const useConversation = (
   analyserNode: AnalyserNode | undefined;
   transcripts: Transcript[];
   currentSpeaker: CurrentSpeaker;
+  conversationId: string | undefined;
 } => {
   const [audioContext, setAudioContext] = React.useState<AudioContext>();
   const [audioAnalyser, setAudioAnalyser] = React.useState<AnalyserNode>();
+  const [conversationId, setConversationId] = React.useState<string>();
   const [audioQueue, setAudioQueue] = React.useState<Buffer[]>([]);
   const [currentSpeaker, setCurrentSpeaker] =
     React.useState<CurrentSpeaker>("none");
@@ -230,22 +232,14 @@ export const useConversation = (
     };
     socket.onmessage = (event) => {
       const message = JSON.parse(event.data);
+      console.log("message: ", message);
       if (message.type === "websocket_audio") {
         setAudioQueue((prev) => [...prev, Buffer.from(message.data, "base64")]);
       } else if (message.type === "websocket_ready") {
         setStatus("connected");
       } else if (message.type == "websocket_transcript") {
         console.log("message: ", message);
-        // setTranscripts((messages) => {
-        //   console.log("PRE messages: ", messages);
-        //   messages.push({
-        //     sender: message.sender,
-        //     text: message.text,
-        //     timestamp: message.timestamp,
-        //   });
-        //   console.log("POST messages: ", messages);
-        //   return messages;
-        // });
+
         setTranscripts((prevMessages) => [
           ...prevMessages,
           {
@@ -387,5 +381,6 @@ export const useConversation = (
     analyserNode: audioAnalyser,
     transcripts,
     currentSpeaker,
+    conversationId,
   };
 };
