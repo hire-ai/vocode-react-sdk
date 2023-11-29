@@ -229,9 +229,7 @@ export const useConversation = (
       error = new Error("See console for error details");
     };
     socket.onmessage = (event) => {
-      console.log(" ");
       const message = JSON.parse(event.data);
-      console.log("WS message.type: ", message.type);
       if (message.type === "websocket_audio") {
         setAudioQueue((prev) => [...prev, Buffer.from(message.data, "base64")]);
       } else if (message.type === "websocket_ready") {
