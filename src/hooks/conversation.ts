@@ -366,6 +366,8 @@ export const useConversation = (
     recorderToUse.start(timeSlice);
   };
 
+  console.log("[PACKAGE] transcripts: ", transcripts);
+
   return {
     status,
     start: startConversation,
