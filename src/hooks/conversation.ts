@@ -206,6 +206,7 @@ export const useConversation = (
   const startConversation = async () => {
     console.log(" ");
     console.log("startConversation");
+    setTranscripts([]);
     if (!audioContext || !audioAnalyser) return;
     setStatus("connecting");
 
