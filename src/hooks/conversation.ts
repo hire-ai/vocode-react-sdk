@@ -416,9 +416,6 @@ export const useConversation = (
           type: "websocket_final_combo_audio",
           data: base64_url || "",
         };
-        console.log(" ");
-        console.log("recordingFile: ", recordingFile);
-        console.log("socket?.readyState: ", socket?.readyState);
 
         socket?.readyState === WebSocket.OPEN &&
           socket.send(stringify(recordingFile));
