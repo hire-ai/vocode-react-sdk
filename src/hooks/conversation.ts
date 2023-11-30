@@ -177,12 +177,7 @@ export const useConversation = (
     }
     if (!recorder || !socket) return;
     recorder.stop();
-    await agentAndUserRecorder.stop();
-    const stopMessage: StopMessage = {
-      type: "websocket_stop",
-    };
-    socket.send(stringify(stopMessage));
-    socket.close();
+    agentAndUserRecorder.stop();
   };
 
   const getBackendUrl = async () => {
@@ -427,6 +422,12 @@ export const useConversation = (
 
         socket?.readyState === WebSocket.OPEN &&
           socket.send(stringify(recordingFile));
+
+        const stopMessage: StopMessage = {
+          type: "websocket_stop",
+        };
+        socket.send(stringify(stopMessage));
+        socket.close();
       };
     }
 
