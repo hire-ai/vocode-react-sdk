@@ -94,13 +94,12 @@ export const useConversation = (
     setLocalRecordingUrl(undefined);
     comboChunksRef.current = [];
 
-    const _audioContext = new AudioContext();
-    setAudioContext(_audioContext);
-    const audioAnalyser = _audioContext.createAnalyser();
+    const audioContext = new AudioContext();
+    setAudioContext(audioContext);
+    const audioAnalyser = audioContext.createAnalyser();
     setAudioAnalyser(audioAnalyser);
 
-    combinedStreamDestRef.current =
-      _audioContext.createMediaStreamDestination();
+    combinedStreamDestRef.current = audioContext.createMediaStreamDestination();
 
     if (!audioContext || !audioAnalyser) return;
     setStatus("connecting");
