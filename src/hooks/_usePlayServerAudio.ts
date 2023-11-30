@@ -44,6 +44,7 @@ export const _usePlayServerAudio = ({
       const audio = audioQueue.shift();
 
       const __addServerAudioToComboRecording = async () => {
+        // @ts-ignore
         const audioBuffer = await genBase64ToAudioBuffer(audio, audioContext);
         playAudioBuffer(
           audioBuffer,
