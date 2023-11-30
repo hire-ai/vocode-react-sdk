@@ -245,6 +245,7 @@ export const useConversation = (
   const startConversation = async () => {
     setTranscripts([]);
     setCallDetails(undefined);
+    setLocalRecordingUrl(undefined);
     if (!audioContext || !audioAnalyser) return;
     setStatus("connecting");
 
