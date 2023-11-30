@@ -52,6 +52,8 @@ export const useConversation = (
     React.useState<CurrentSpeaker>("none");
   const [processing, setProcessing] = React.useState(false);
   const [recorder, setRecorder] = React.useState<IMediaRecorder>();
+  const [agentAndUserRecorder, setAgentAndUserRecorder] =
+    React.useState<IMediaRecorder>();
   const [socket, setSocket] = React.useState<WebSocket>();
   const [status, setStatus] = React.useState<ConversationStatus>("idle");
   const [error, setError] = React.useState<Error>();
@@ -83,9 +85,11 @@ export const useConversation = (
   React.useEffect(() => {
     if (!recorder || !socket) return;
     if (status === "connected") {
-      if (active)
+      if (active) {
         recorder.addEventListener("dataavailable", recordingDataListener);
-      else recorder.removeEventListener("dataavailable", recordingDataListener);
+      } else {
+        recorder.removeEventListener("dataavailable", recordingDataListener);
+      }
     }
   }, [recorder, socket, status, active]);
 
@@ -138,6 +142,7 @@ export const useConversation = (
     }
     if (!recorder || !socket) return;
     recorder.stop();
+    agentAndUserRecorder.stop();
     const stopMessage: StopMessage = {
       type: "websocket_stop",
     };
@@ -206,6 +211,21 @@ export const useConversation = (
     conversationId,
     subscribeTranscript,
   });
+  const convertBase64ToArrayBuffer = (base64) => {
+    const binaryString = window.atob(base64);
+    const len = binaryString.length;
+    const bytes = new Uint8Array(len);
+    for (let i = 0; i < len; i++) {
+      bytes[i] = binaryString.charCodeAt(i);
+    }
+    return bytes.buffer;
+  };
+
+  // Function to convert base64 audio data to AudioBuffer
+  const convertToAudioBuffer = async (base64Data) => {
+    const arrayBuffer = convertBase64ToArrayBuffer(base64Data);
+    return await audioContext.decodeAudioData(arrayBuffer);
+  };
 
   const startConversation = async () => {
     setTranscripts([]);
@@ -231,10 +251,16 @@ export const useConversation = (
       console.error(event);
       error = new Error("See console for error details");
     };
-    socket.onmessage = (event) => {
+    socket.onmessage = async (event) => {
       const message = JSON.parse(event.data);
       if (message.type === "websocket_audio") {
         setAudioQueue((prev) => [...prev, Buffer.from(message.data, "base64")]);
+
+        const audioBuffer = await convertToAudioBuffer(message.data);
+        const source = audioContext.createBufferSource();
+        source.buffer = audioBuffer;
+        source.connect(combinedStreamDest);
+        source.start();
       } else if (message.type === "websocket_ready") {
         setCallDetails({
           callId: message.call_id,
@@ -296,6 +322,44 @@ export const useConversation = (
       stopConversation(error as Error);
       return;
     }
+
+    /**
+     * Create a media recorder that combines the microphone audio and output
+     * audio from the socket. This creates a single stream that can be downloaded once
+     * the call is complete.
+     */
+    const combinedStreamDest = audioContext.createMediaStreamDestination();
+    const micSource = audioContext.createMediaStreamSource(audioStream);
+
+    const socketAudioStream = "/* convert received audio to MediaStream */;";
+    const socketAudioSource =
+      audioContext.createMediaStreamSource(socketAudioStream);
+
+    // connect sources to destination
+    socketAudioSource.connect(combinedStreamDest);
+    micSource.connect(combinedStreamDest);
+
+    // create combo media recorder
+    const _combinedRecorder = new MediaRecorder(combinedStreamDest.stream);
+    let comboChunks: any = [];
+
+    _combinedRecorder.ondataavailable = (event) => {
+      comboChunks.push(event.data);
+    };
+    _combinedRecorder.onstop = () => {
+      console.log("CLICKED COMBO FILE TO DOWNLOAD");
+      const audioBlob = new Blob(comboChunks, { type: "audio/wav" });
+      const audioUrl = URL.createObjectURL(audioBlob);
+
+      // Create a link to download the audio
+      const downloadLink = document.createElement("a");
+      downloadLink.href = audioUrl;
+      downloadLink.download = "combo_conversation.wav";
+      downloadLink.click();
+    };
+    _combinedRecorder.start();
+    setAgentAndUserRecorder(_combinedRecorder);
+
     const micSettings = audioStream.getAudioTracks()[0].getSettings();
 
     const inputAudioMetadata = {
