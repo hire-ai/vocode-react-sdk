@@ -9,10 +9,15 @@ export type WebSocketMessageType =
   | "websocket_transcript"
   | "websocket_ready"
   | "websocket_stop"
-  | "websocket_audio_config_start";
+  | "websocket_audio_config_start"
+  | "websocket_final_combo_audio";
 
 export interface WebSocketMessage {
   type: WebSocketMessageType;
+}
+export interface FinalComboAudio extends WebSocketMessage {
+  type: "websocket_final_combo_audio";
+  data: string;
 }
 
 export interface StartMessage extends WebSocketMessage {

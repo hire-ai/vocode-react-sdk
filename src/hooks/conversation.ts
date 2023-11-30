@@ -20,6 +20,7 @@ import {
   AudioMessage,
   StartMessage,
   StopMessage,
+  FinalComboAudio,
 } from "../types/vocode/websocket";
 import { DeepgramTranscriberConfig, TranscriberConfig } from "../types";
 import { isSafari, isChrome } from "react-device-detect";
@@ -408,12 +409,24 @@ export const useConversation = (
         }
       );
       setAgentAndUserRecorder(combinedRecorderToUse);
-      combinedRecorderToUse.onstop = () => {
+      combinedRecorderToUse.onstop = async () => {
         const audioBlob = new Blob(comboChunksRef.current, {
           type: "audio/wav",
         });
         const audioUrl = URL.createObjectURL(audioBlob);
         setLocalRecordingUrl(audioUrl);
+        const base64_url = await blobToBase64(audioBlob);
+
+        const recordingFile: FinalComboAudio = {
+          type: "websocket_final_combo_audio",
+          data: base64_url || "",
+        };
+        console.log(" ");
+        console.log("recordingFile: ", recordingFile);
+        console.log("socket?.readyState: ", socket?.readyState);
+
+        socket?.readyState === WebSocket.OPEN &&
+          socket.send(stringify(recordingFile));
       };
     }
 
