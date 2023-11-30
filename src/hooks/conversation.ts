@@ -63,14 +63,16 @@ export const useConversation = (
 
   // get audio context and metadata about user audio
   React.useEffect(() => {
-    const _audioContext = new AudioContext();
-    setAudioContext(_audioContext);
-    const audioAnalyser = _audioContext.createAnalyser();
-    setAudioAnalyser(audioAnalyser);
+    if (socket.readyState === WebSocket.OPEN) {
+      const _audioContext = new AudioContext();
+      setAudioContext(_audioContext);
+      const audioAnalyser = _audioContext.createAnalyser();
+      setAudioAnalyser(audioAnalyser);
 
-    combinedStreamDestRef.current =
-      _audioContext.createMediaStreamDestination();
-  }, []);
+      combinedStreamDestRef.current =
+        _audioContext.createMediaStreamDestination();
+    }
+  }, [socket.readyState === WebSocket.OPEN]);
 
   _useStreamToServerAndComboRecording({
     socket,
