@@ -181,6 +181,7 @@ export const useConversation = (
       socket.send(stringify(stopMessage));
       socket.close();
     }
+    setAgentAndUserRecorder(undefined);
   };
 
   const getBackendUrl = async () => {
