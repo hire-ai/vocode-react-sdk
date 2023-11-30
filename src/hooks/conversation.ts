@@ -242,11 +242,10 @@ export const useConversation = (
       if (message.type === "websocket_audio") {
         setAudioQueue((prev) => [...prev, Buffer.from(message.data, "base64")]);
       } else if (message.type === "websocket_ready") {
+        console.log("SET STATUS AS CONNECTED");
         setCallDetails(message.callDetails as CallDetails);
         setStatus("connected");
       } else if (message.type == "websocket_transcript") {
-        console.log("message: ", message);
-
         setTranscripts((prevMessages) => [
           ...prevMessages,
           {
@@ -300,7 +299,7 @@ export const useConversation = (
       return;
     }
     const micSettings = audioStream.getAudioTracks()[0].getSettings();
-    console.log(micSettings);
+
     const inputAudioMetadata = {
       samplingRate: micSettings.sampleRate || audioContext.sampleRate,
       audioEncoding: "linear16" as AudioEncoding,
@@ -340,8 +339,6 @@ export const useConversation = (
     }
 
     socket.send(stringify(startMessage));
-    console.log("Access to microphone granted");
-    console.log(startMessage);
 
     let recorderToUse = recorder;
     if (recorderToUse && recorderToUse.state === "paused") {
@@ -374,8 +371,6 @@ export const useConversation = (
     }
     recorderToUse.start(timeSlice);
   };
-
-  console.log("[PACKAGE] transcripts: ", transcripts);
 
   return {
     status,
