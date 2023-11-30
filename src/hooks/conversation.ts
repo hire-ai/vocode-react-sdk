@@ -323,10 +323,12 @@ export const useConversation = (
     let comboChunks: any = [];
 
     _combinedRecorder.ondataavailable = (event) => {
+      console.log("[ADD CHUNK TO COMBO RECORDER] event: ", event);
       comboChunks.push(event.data);
     };
     _combinedRecorder.onstop = () => {
       console.log("CLICKED COMBO FILE TO DOWNLOAD");
+      console.log("comboChunks: ", comboChunks);
       const audioBlob = new Blob(comboChunks, { type: "audio/wav" });
       const audioUrl = URL.createObjectURL(audioBlob);
 
