@@ -169,6 +169,7 @@ export const useConversation = (
   const stopConversation = async (error?: Error) => {
     setAudioQueue([]);
     setCurrentSpeaker("none");
+    console.log("error: ", error);
     if (error) {
       setError(error);
       setStatus("error");
@@ -246,6 +247,7 @@ export const useConversation = (
     setTranscripts([]);
     setCallDetails(undefined);
     setLocalRecordingUrl(undefined);
+    comboChunksRef.current = [];
     if (!audioContext || !audioAnalyser) return;
     setStatus("connecting");
 
