@@ -70,6 +70,7 @@ export const useConversation = (
   }, []);
 
   const recordingDataListener = ({ data }: { data: Blob }) => {
+    console.log("GOT MIC RECORDING recordingDataListener");
     blobToBase64(data).then((base64Encoded: string | null) => {
       if (!base64Encoded) return;
       const audioMessage: AudioMessage = {
@@ -254,7 +255,7 @@ export const useConversation = (
       const message = JSON.parse(event.data);
       if (message.type === "websocket_audio") {
         setAudioQueue((prev) => [...prev, Buffer.from(message.data, "base64")]);
-        console.log("[1] SERVER AUDIO CHUNK RECIEVED");
+        console.log("[2] SERVER AUDIO CHUNK RECIEVED");
         // const audioBuffer = await __convertBase64ToAudioBuffer(
         //   message.data,
         //   audioContext
