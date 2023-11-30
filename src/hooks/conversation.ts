@@ -91,7 +91,7 @@ export const useConversation = (
         recorder.removeEventListener("dataavailable", recordingDataListener);
       }
     }
-  }, [recorder, socket, status, active]);
+  }, [recorder, agentAndUserRecorder, socket, status, active]);
 
   // accept wav audio from webpage
   React.useEffect(() => {
@@ -242,11 +242,12 @@ export const useConversation = (
       const message = JSON.parse(event.data);
       if (message.type === "websocket_audio") {
         setAudioQueue((prev) => [...prev, Buffer.from(message.data, "base64")]);
-
+        console.log("SERVER AUDIO CHUNK RECIEVED");
         const audioBuffer = await __convertBase64ToAudioBuffer(
           message.data,
           audioContext
         );
+        console.log("audioBuffer: ", audioBuffer);
         __playAudioBuffer(audioBuffer, audioContext, combinedStreamDest);
       } else if (message.type === "websocket_ready") {
         setCallDetails({
@@ -323,13 +324,14 @@ export const useConversation = (
     let comboChunks: any = [];
 
     _combinedRecorder.ondataavailable = (event) => {
-      console.log("[ADD CHUNK TO COMBO RECORDER] event: ", event);
+      console.log("[_combinedRecorder] ondataavailable: ", event);
       comboChunks.push(event.data);
     };
     _combinedRecorder.onstop = () => {
-      console.log("CLICKED COMBO FILE TO DOWNLOAD");
+      console.log("[_combinedRecorder] onstop");
       console.log("comboChunks: ", comboChunks);
       const audioBlob = new Blob(comboChunks, { type: "audio/wav" });
+      console.log("audioBlob: ", audioBlob);
       const audioUrl = URL.createObjectURL(audioBlob);
 
       // Create a link to download the audio
@@ -441,6 +443,7 @@ function __convertBase64ToAudioBuffer(base64, audioContext) {
 }
 
 function __playAudioBuffer(audioBuffer, audioContext, destination) {
+  console.log("ADD SERVER AUDIO");
   const source = audioContext.createBufferSource();
   source.buffer = audioBuffer;
   source.connect(destination);
