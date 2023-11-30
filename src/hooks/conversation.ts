@@ -20,7 +20,7 @@ import {
   AudioMessage,
   StartMessage,
   StopMessage,
-  FinalComboAudio,
+  FinalComboAudioMessage,
 } from "../types/vocode/websocket";
 import { DeepgramTranscriberConfig, TranscriberConfig } from "../types";
 import { isSafari, isChrome } from "react-device-detect";
@@ -412,7 +412,7 @@ export const useConversation = (
         setLocalRecordingUrl(audioUrl);
         const base64_url = await blobToBase64(audioBlob);
 
-        const recordingFile: FinalComboAudio = {
+        const recordingFile: FinalComboAudioMessage = {
           type: "websocket_final_combo_audio",
           data: base64_url || "",
         };

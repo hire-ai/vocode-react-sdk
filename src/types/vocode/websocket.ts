@@ -15,7 +15,7 @@ export type WebSocketMessageType =
 export interface WebSocketMessage {
   type: WebSocketMessageType;
 }
-export interface FinalComboAudio extends WebSocketMessage {
+export interface FinalComboAudioMessage extends WebSocketMessage {
   type: "websocket_final_combo_audio";
   data: string;
 }
