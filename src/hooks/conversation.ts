@@ -211,8 +211,6 @@ export const useConversation = (
   });
 
   const startConversation = async () => {
-    console.log(" ");
-    console.log("startConversation");
     setTranscripts([]);
     setCallDetails(undefined);
     if (!audioContext || !audioAnalyser) return;
@@ -238,12 +236,17 @@ export const useConversation = (
     };
     socket.onmessage = (event) => {
       const message = JSON.parse(event.data);
-      console.log("message: ", message);
       if (message.type === "websocket_audio") {
         setAudioQueue((prev) => [...prev, Buffer.from(message.data, "base64")]);
       } else if (message.type === "websocket_ready") {
-        console.log("SET STATUS AS CONNECTED");
-        setCallDetails(message.callDetails as CallDetails);
+        setCallDetails({
+          callId: message.call_id,
+          callerId: message.caller_id,
+          orgId: message.org_id,
+          orgLocationId: message.org_location_id,
+          fromPhone: message.from_phone,
+          toPhone: message.to_phone,
+        });
         setStatus("connected");
       } else if (message.type == "websocket_transcript") {
         setTranscripts((prevMessages) => [
@@ -277,10 +280,6 @@ export const useConversation = (
         echoCancellation: true,
       };
       if (config.audioDeviceConfig.inputDeviceId) {
-        console.log(
-          "Using input device",
-          config.audioDeviceConfig.inputDeviceId
-        );
         trackConstraints.deviceId = config.audioDeviceConfig.inputDeviceId;
       }
       audioStream = await navigator.mediaDevices.getUserMedia({

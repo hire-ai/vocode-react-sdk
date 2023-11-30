@@ -24,12 +24,12 @@ export interface PunctuationEndpointingConfig extends EndpointingConfig {
 }
 
 export interface CallDetails {
-  call_Id: string;
-  caller_Id: string;
-  org_id: string;
-  org_location_id: string;
-  from_phone: string;
-  to_phone: string;
+  callId: string;
+  callerId: string;
+  orgId: string;
+  orgLocationId: string;
+  fromPhone: string;
+  toPhone: string;
 }
 
 export interface TranscriberConfig {
