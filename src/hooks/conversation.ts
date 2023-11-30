@@ -42,10 +42,13 @@ export const useConversation = (
   transcripts: Transcript[];
   currentSpeaker: CurrentSpeaker;
   callDetails: CallDetails | undefined;
+  localTranscriptUrl: string | undefined;
 } => {
   const comboChunksRef = React.useRef([]);
   const combinedStreamDestRef = React.useRef<MediaStreamAudioDestinationNode>();
   const [audioContext, setAudioContext] = React.useState<AudioContext>();
+  const [localTranscriptUrl, setLocalTranscriptUrl] = React.useState<string>();
+
   const [audioAnalyser, setAudioAnalyser] = React.useState<AnalyserNode>();
   const [callDetails, setCallDetails] = React.useState<CallDetails>();
 
@@ -410,11 +413,7 @@ export const useConversation = (
           type: "audio/wav",
         });
         const audioUrl = URL.createObjectURL(audioBlob);
-        // Create a link to download the audio
-        const downloadLink = document.createElement("a");
-        downloadLink.href = audioUrl;
-        downloadLink.download = "combo_conversation.wav";
-        downloadLink.click();
+        setLocalTranscriptUrl(audioUrl);
       };
     }
 
@@ -463,6 +462,7 @@ export const useConversation = (
     transcripts,
     currentSpeaker,
     callDetails,
+    localTranscriptUrl,
   };
 };
 
