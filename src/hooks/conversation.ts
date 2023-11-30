@@ -255,7 +255,7 @@ export const useConversation = (
       const message = JSON.parse(event.data);
       if (message.type === "websocket_audio") {
         setAudioQueue((prev) => [...prev, Buffer.from(message.data, "base64")]);
-        console.log("[2] SERVER AUDIO CHUNK RECIEVED");
+        console.log("[3] SERVER AUDIO CHUNK RECIEVED");
         // const audioBuffer = await __convertBase64ToAudioBuffer(
         //   message.data,
         //   audioContext
@@ -333,28 +333,26 @@ export const useConversation = (
     micSource.connect(combinedStreamDest);
 
     // create combo media recorder
-    const _combinedRecorder = new MediaRecorder(combinedStreamDest.stream, {
-      mimeType: "audio/wav",
-    });
-    let comboChunks: any = [];
 
-    _combinedRecorder.ondataavailable = (event) => {
-      console.log("[_combinedRecorder] ondataavailable: ", event);
-      comboChunks.push(event.data);
-    };
-    _combinedRecorder.onstop = () => {
-      console.log("[_combinedRecorder] onstop");
-      console.log("comboChunks: ", comboChunks);
-      const audioBlob = new Blob(comboChunks, { type: "audio/wav" });
-      console.log("audioBlob: ", audioBlob);
-      const audioUrl = URL.createObjectURL(audioBlob);
+    // let comboChunks: any = [];
 
-      // Create a link to download the audio
-      const downloadLink = document.createElement("a");
-      downloadLink.href = audioUrl;
-      downloadLink.download = "combo_conversation.wav";
-      downloadLink.click();
-    };
+    // _combinedRecorder.ondataavailable = (event) => {
+    //   console.log("[_combinedRecorder] ondataavailable: ", event);
+    //   comboChunks.push(event.data);
+    // };
+    // _combinedRecorder.onstop = () => {
+    //   console.log("[_combinedRecorder] onstop");
+    //   console.log("comboChunks: ", comboChunks);
+    //   const audioBlob = new Blob(comboChunks, { type: "audio/wav" });
+    //   console.log("audioBlob: ", audioBlob);
+    //   const audioUrl = URL.createObjectURL(audioBlob);
+
+    //   // Create a link to download the audio
+    //   const downloadLink = document.createElement("a");
+    //   downloadLink.href = audioUrl;
+    //   downloadLink.download = "combo_conversation.wav";
+    //   downloadLink.click();
+    // };
 
     const micSettings = audioStream.getAudioTracks()[0].getSettings();
 
@@ -408,8 +406,15 @@ export const useConversation = (
       setRecorder(recorderToUse);
     }
 
-    _combinedRecorder.start();
-    setAgentAndUserRecorder(_combinedRecorder);
+    let combinedRecorderToUse = agentAndUserRecorder;
+    if (combinedRecorderToUse && combinedRecorderToUse.state === "paused") {
+      combinedRecorderToUse.resume();
+    } else if (!combinedRecorderToUse) {
+      combinedRecorderToUse = new MediaRecorder(combinedStreamDest.stream, {
+        mimeType: "audio/wav",
+      });
+      setAgentAndUserRecorder(combinedRecorderToUse);
+    }
 
     let timeSlice;
     if ("transcriberConfig" in startMessage) {
@@ -429,8 +434,19 @@ export const useConversation = (
       // which is not expected to call `start()` according to:
       // https://developer.mozilla.org/en-US/docs/Web/API/MediaRecorder/start.
       return;
+    } else {
+      recorderToUse.start(timeSlice);
     }
-    recorderToUse.start(timeSlice);
+
+    if (combinedRecorderToUse.state === "recording") {
+      // When the recorder is in the recording state, see:
+      // https://developer.mozilla.org/en-US/docs/Web/API/MediaRecorder/state
+      // which is not expected to call `start()` according to:
+      // https://developer.mozilla.org/en-US/docs/Web/API/MediaRecorder/start.
+      return;
+    } else {
+      combinedRecorderToUse.start(timeSlice);
+    }
   };
 
   return {
