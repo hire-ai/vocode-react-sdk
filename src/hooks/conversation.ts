@@ -417,13 +417,14 @@ export const useConversation = (
           data: base64_url || "",
         };
 
-        socket?.readyState === WebSocket.OPEN &&
+        if (socket?.readyState === WebSocket.OPEN) {
           socket.send(stringify(recordingFile));
+          const stopMessage: StopMessage = {
+            type: "websocket_stop",
+          };
+          socket.send(stringify(stopMessage));
+        }
 
-        const stopMessage: StopMessage = {
-          type: "websocket_stop",
-        };
-        socket.send(stringify(stopMessage));
         socket.close();
       };
     }
