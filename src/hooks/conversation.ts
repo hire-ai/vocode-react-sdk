@@ -166,7 +166,7 @@ export const useConversation = (
     }
   }, [audioQueue, processing]);
 
-  const stopConversation = (error?: Error) => {
+  const stopConversation = async (error?: Error) => {
     setAudioQueue([]);
     setCurrentSpeaker("none");
     if (error) {
@@ -177,7 +177,7 @@ export const useConversation = (
     }
     if (!recorder || !socket) return;
     recorder.stop();
-    agentAndUserRecorder.stop();
+    await agentAndUserRecorder.stop();
     const stopMessage: StopMessage = {
       type: "websocket_stop",
     };
