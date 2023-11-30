@@ -170,16 +170,18 @@ export const useConversation = (
     console.log("stopConversation: ", stopConversation);
     setAudioQueue([]);
     setCurrentSpeaker("none");
-    console.log("error: ", error);
-    if (error) {
-      setError(error);
-      setStatus("error");
+    setStatus("idle");
+
+    recorder && recorder.stop();
+    if (agentAndUserRecorder) {
+      agentAndUserRecorder.stop();
     } else {
-      setStatus("idle");
+      const stopMessage: StopMessage = {
+        type: "websocket_stop",
+      };
+      socket.send(stringify(stopMessage));
+      socket.close();
     }
-    if (!recorder || !socket) return;
-    recorder.stop();
-    agentAndUserRecorder.stop();
   };
 
   const getBackendUrl = async () => {
