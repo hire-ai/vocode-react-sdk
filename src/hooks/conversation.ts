@@ -211,21 +211,6 @@ export const useConversation = (
     conversationId,
     subscribeTranscript,
   });
-  const convertBase64ToArrayBuffer = (base64) => {
-    const binaryString = window.atob(base64);
-    const len = binaryString.length;
-    const bytes = new Uint8Array(len);
-    for (let i = 0; i < len; i++) {
-      bytes[i] = binaryString.charCodeAt(i);
-    }
-    return bytes.buffer;
-  };
-
-  // Function to convert base64 audio data to AudioBuffer
-  const convertToAudioBuffer = async (base64Data) => {
-    const arrayBuffer = convertBase64ToArrayBuffer(base64Data);
-    return await audioContext.decodeAudioData(arrayBuffer);
-  };
 
   const startConversation = async () => {
     setTranscripts([]);
@@ -251,16 +236,18 @@ export const useConversation = (
       console.error(event);
       error = new Error("See console for error details");
     };
+    const combinedStreamDest = audioContext.createMediaStreamDestination();
+
     socket.onmessage = async (event) => {
       const message = JSON.parse(event.data);
       if (message.type === "websocket_audio") {
         setAudioQueue((prev) => [...prev, Buffer.from(message.data, "base64")]);
 
-        const audioBuffer = await convertToAudioBuffer(message.data);
-        const source = audioContext.createBufferSource();
-        source.buffer = audioBuffer;
-        source.connect(combinedStreamDest);
-        source.start();
+        const audioBuffer = await __convertBase64ToAudioBuffer(
+          message.data,
+          audioContext
+        );
+        __playAudioBuffer(audioBuffer, audioContext, combinedStreamDest);
       } else if (message.type === "websocket_ready") {
         setCallDetails({
           callId: message.call_id,
@@ -328,15 +315,7 @@ export const useConversation = (
      * audio from the socket. This creates a single stream that can be downloaded once
      * the call is complete.
      */
-    const combinedStreamDest = audioContext.createMediaStreamDestination();
     const micSource = audioContext.createMediaStreamSource(audioStream);
-
-    // const socketAudioStream = "/* convert received audio to MediaStream */;";
-    // const socketAudioSource =
-    //   audioContext.createMediaStreamSource(socketAudioStream);
-
-    // connect sources to destination
-    // socketAudioSource.connect(combinedStreamDest);
     micSource.connect(combinedStreamDest);
 
     // create combo media recorder
@@ -448,3 +427,20 @@ export const useConversation = (
     callDetails,
   };
 };
+
+function __convertBase64ToAudioBuffer(base64, audioContext) {
+  const binaryString = window.atob(base64);
+  const len = binaryString.length;
+  const bytes = new Uint8Array(len);
+  for (let i = 0; i < len; i++) {
+    bytes[i] = binaryString.charCodeAt(i);
+  }
+  return audioContext.decodeAudioData(bytes.buffer);
+}
+
+function __playAudioBuffer(audioBuffer, audioContext, destination) {
+  const source = audioContext.createBufferSource();
+  source.buffer = audioBuffer;
+  source.connect(destination);
+  source.start();
+}
