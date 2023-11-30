@@ -88,7 +88,7 @@ export const useConversation = (
   });
 
   const __genStart = async () => {
-    console.log("START CALL");
+    console.log("[1] START CALL");
     setTranscripts([]);
     setCallDetails(undefined);
     setLocalRecordingUrl(undefined);
