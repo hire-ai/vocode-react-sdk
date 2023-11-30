@@ -83,7 +83,6 @@ export const useConversation = (
   };
   const comboChunks = React.useRef([]);
   const comboRecordingDataListener = ({ data }: { data: Blob }) => {
-    console.log("COMBO RECORDER GOT DATA:", data);
     comboChunks.current.push(data);
   };
 
@@ -252,17 +251,17 @@ export const useConversation = (
     };
     const combinedStreamDest = audioContext.createMediaStreamDestination();
 
-    socket.onmessage = (event) => {
+    socket.onmessage = async (event) => {
       const message = JSON.parse(event.data);
       if (message.type === "websocket_audio") {
         setAudioQueue((prev) => [...prev, Buffer.from(message.data, "base64")]);
-        console.log("[3] SERVER AUDIO CHUNK RECIEVED");
-        // const audioBuffer = await __convertBase64ToAudioBuffer(
-        //   message.data,
-        //   audioContext
-        // );
-        // console.log("audioBuffer: ", audioBuffer);
-        // __playAudioBuffer(audioBuffer, audioContext, combinedStreamDest);
+        console.log("[4] SERVER AUDIO CHUNK RECIEVED");
+        const audioBuffer = await __convertBase64ToAudioBuffer(
+          message.data,
+          audioContext
+        );
+        console.log("audioBuffer: ", audioBuffer);
+        __playAudioBuffer(audioBuffer, audioContext, combinedStreamDest);
       } else if (message.type === "websocket_ready") {
         setCallDetails({
           callId: message.call_id,
@@ -419,7 +418,6 @@ export const useConversation = (
         console.log("[_combinedRecorder] onstop");
         console.log("comboChunks: ", comboChunks.current);
         const audioBlob = new Blob(comboChunks.current, { type: "audio/wav" });
-        console.log("audioBlob: ", audioBlob);
         const audioUrl = URL.createObjectURL(audioBlob);
 
         // Create a link to download the audio
