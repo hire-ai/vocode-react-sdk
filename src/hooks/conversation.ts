@@ -61,19 +61,6 @@ export const useConversation = (
   const [error, setError] = React.useState<Error>();
   const [transcripts, setTranscripts] = React.useState<Transcript[]>([]);
 
-  // get audio context and metadata about user audio
-  React.useEffect(() => {
-    if (socket.readyState === WebSocket.OPEN) {
-      const _audioContext = new AudioContext();
-      setAudioContext(_audioContext);
-      const audioAnalyser = _audioContext.createAnalyser();
-      setAudioAnalyser(audioAnalyser);
-
-      combinedStreamDestRef.current =
-        _audioContext.createMediaStreamDestination();
-    }
-  }, [socket.readyState === WebSocket.OPEN]);
-
   _useStreamToServerAndComboRecording({
     socket,
     comboChunksRef,
@@ -105,6 +92,15 @@ export const useConversation = (
     setCallDetails(undefined);
     setLocalRecordingUrl(undefined);
     comboChunksRef.current = [];
+
+    const _audioContext = new AudioContext();
+    setAudioContext(_audioContext);
+    const audioAnalyser = _audioContext.createAnalyser();
+    setAudioAnalyser(audioAnalyser);
+
+    combinedStreamDestRef.current =
+      _audioContext.createMediaStreamDestination();
+
     if (!audioContext || !audioAnalyser) return;
     setStatus("connecting");
 
@@ -152,9 +148,7 @@ export const useConversation = (
         ]);
       }
     };
-    socket.onclose = () => {
-      __stop(error);
-    };
+    socket.onclose = () => __stop();
     setSocket(socket);
 
     // wait for socket to be ready
