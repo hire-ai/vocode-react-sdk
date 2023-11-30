@@ -175,7 +175,7 @@ export const useConversation = (
     recorder && recorder.stop();
     if (agentAndUserRecorder) {
       agentAndUserRecorder.stop();
-    } else {
+    } else if (socket) {
       const stopMessage: StopMessage = {
         type: "websocket_stop",
       };
