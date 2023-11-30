@@ -238,17 +238,17 @@ export const useConversation = (
     };
     const combinedStreamDest = audioContext.createMediaStreamDestination();
 
-    socket.onmessage = async (event) => {
+    socket.onmessage = (event) => {
       const message = JSON.parse(event.data);
       if (message.type === "websocket_audio") {
         setAudioQueue((prev) => [...prev, Buffer.from(message.data, "base64")]);
-        console.log("SERVER AUDIO CHUNK RECIEVED");
-        const audioBuffer = await __convertBase64ToAudioBuffer(
-          message.data,
-          audioContext
-        );
-        console.log("audioBuffer: ", audioBuffer);
-        __playAudioBuffer(audioBuffer, audioContext, combinedStreamDest);
+        console.log("[1] SERVER AUDIO CHUNK RECIEVED");
+        // const audioBuffer = await __convertBase64ToAudioBuffer(
+        //   message.data,
+        //   audioContext
+        // );
+        // console.log("audioBuffer: ", audioBuffer);
+        // __playAudioBuffer(audioBuffer, audioContext, combinedStreamDest);
       } else if (message.type === "websocket_ready") {
         setCallDetails({
           callId: message.call_id,
