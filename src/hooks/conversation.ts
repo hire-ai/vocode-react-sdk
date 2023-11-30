@@ -81,9 +81,10 @@ export const useConversation = (
         socket.send(stringify(audioMessage));
     });
   };
-
+  const comboChunks = React.useRef([]);
   const comboRecordingDataListener = ({ data }: { data: Blob }) => {
     console.log("COMBO RECORDER GOT DATA:", data);
+    comboChunks.current.push(data);
   };
 
   // once the conversation is connected, stream the microphone audio into the socket
@@ -414,6 +415,19 @@ export const useConversation = (
         mimeType: "audio/wav",
       });
       setAgentAndUserRecorder(combinedRecorderToUse);
+      combinedRecorderToUse.onstop = () => {
+        console.log("[_combinedRecorder] onstop");
+        console.log("comboChunks: ", comboChunks.current);
+        const audioBlob = new Blob(comboChunks.current, { type: "audio/wav" });
+        console.log("audioBlob: ", audioBlob);
+        const audioUrl = URL.createObjectURL(audioBlob);
+
+        // Create a link to download the audio
+        const downloadLink = document.createElement("a");
+        downloadLink.href = audioUrl;
+        downloadLink.download = "combo_conversation.wav";
+        downloadLink.click();
+      };
     }
 
     let timeSlice;
