@@ -166,7 +166,8 @@ export const useConversation = (
     }
   }, [audioQueue, processing]);
 
-  const stopConversation = async (error?: Error) => {
+  const stopConversation = (error?: Error) => {
+    console.log("stopConversation: ", stopConversation);
     setAudioQueue([]);
     setCurrentSpeaker("none");
     console.log("error: ", error);
