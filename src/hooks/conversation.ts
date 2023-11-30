@@ -331,12 +331,12 @@ export const useConversation = (
     const combinedStreamDest = audioContext.createMediaStreamDestination();
     const micSource = audioContext.createMediaStreamSource(audioStream);
 
-    const socketAudioStream = "/* convert received audio to MediaStream */;";
-    const socketAudioSource =
-      audioContext.createMediaStreamSource(socketAudioStream);
+    // const socketAudioStream = "/* convert received audio to MediaStream */;";
+    // const socketAudioSource =
+    //   audioContext.createMediaStreamSource(socketAudioStream);
 
     // connect sources to destination
-    socketAudioSource.connect(combinedStreamDest);
+    // socketAudioSource.connect(combinedStreamDest);
     micSource.connect(combinedStreamDest);
 
     // create combo media recorder
