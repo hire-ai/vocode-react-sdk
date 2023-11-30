@@ -70,7 +70,6 @@ export const useConversation = (
   }, []);
 
   const recordingDataListener = ({ data }: { data: Blob }) => {
-    console.log("GOT MIC RECORDING recordingDataListener");
     blobToBase64(data).then((base64Encoded: string | null) => {
       if (!base64Encoded) return;
       const audioMessage: AudioMessage = {
@@ -114,6 +113,8 @@ export const useConversation = (
     registerWav().catch(console.error);
   }, []);
 
+  const combinedStreamDest = audioContext.createMediaStreamDestination();
+
   // play audio that is queued
   React.useEffect(() => {
     const playArrayBuffer = (arrayBuffer: ArrayBuffer) => {
@@ -137,8 +138,18 @@ export const useConversation = (
     if (!processing && audioQueue.length > 0) {
       setProcessing(true);
       const audio = audioQueue.shift();
-      audio &&
-        fetch(URL.createObjectURL(new Blob([audio])))
+      const __addServerAudioToComboRecording = async () => {
+        const audioBuffer = await __convertBase64ToAudioBuffer(
+          audio,
+          audioContext
+        );
+        __playAudioBuffer(audioBuffer, audioContext, combinedStreamDest);
+      };
+      __addServerAudioToComboRecording();
+
+      const audioBuffer = Buffer.from(audio, "base64");
+      audioBuffer &&
+        fetch(URL.createObjectURL(new Blob([audioBuffer])))
           .then((response) => response.arrayBuffer())
           .then(playArrayBuffer);
     }
@@ -249,19 +260,11 @@ export const useConversation = (
       console.error(event);
       error = new Error("See console for error details");
     };
-    const combinedStreamDest = audioContext.createMediaStreamDestination();
 
     socket.onmessage = async (event) => {
       const message = JSON.parse(event.data);
       if (message.type === "websocket_audio") {
-        setAudioQueue((prev) => [...prev, Buffer.from(message.data, "base64")]);
-        console.log("[4] SERVER AUDIO CHUNK RECIEVED");
-        const audioBuffer = await __convertBase64ToAudioBuffer(
-          message.data,
-          audioContext
-        );
-        console.log("audioBuffer: ", audioBuffer);
-        __playAudioBuffer(audioBuffer, audioContext, combinedStreamDest);
+        setAudioQueue((prev) => [...prev, message.data]);
       } else if (message.type === "websocket_ready") {
         setCallDetails({
           callId: message.call_id,
@@ -332,28 +335,6 @@ export const useConversation = (
     const micSource = audioContext.createMediaStreamSource(audioStream);
     micSource.connect(combinedStreamDest);
 
-    // create combo media recorder
-
-    // let comboChunks: any = [];
-
-    // _combinedRecorder.ondataavailable = (event) => {
-    //   console.log("[_combinedRecorder] ondataavailable: ", event);
-    //   comboChunks.push(event.data);
-    // };
-    // _combinedRecorder.onstop = () => {
-    //   console.log("[_combinedRecorder] onstop");
-    //   console.log("comboChunks: ", comboChunks);
-    //   const audioBlob = new Blob(comboChunks, { type: "audio/wav" });
-    //   console.log("audioBlob: ", audioBlob);
-    //   const audioUrl = URL.createObjectURL(audioBlob);
-
-    //   // Create a link to download the audio
-    //   const downloadLink = document.createElement("a");
-    //   downloadLink.href = audioUrl;
-    //   downloadLink.download = "combo_conversation.wav";
-    //   downloadLink.click();
-    // };
-
     const micSettings = audioStream.getAudioTracks()[0].getSettings();
 
     const inputAudioMetadata = {
@@ -415,11 +396,8 @@ export const useConversation = (
       });
       setAgentAndUserRecorder(combinedRecorderToUse);
       combinedRecorderToUse.onstop = () => {
-        console.log("[_combinedRecorder] onstop");
-        console.log("comboChunks: ", comboChunks.current);
         const audioBlob = new Blob(comboChunks.current, { type: "audio/wav" });
         const audioUrl = URL.createObjectURL(audioBlob);
-
         // Create a link to download the audio
         const downloadLink = document.createElement("a");
         downloadLink.href = audioUrl;
@@ -487,7 +465,6 @@ function __convertBase64ToAudioBuffer(base64, audioContext) {
 }
 
 function __playAudioBuffer(audioBuffer, audioContext, destination) {
-  console.log("ADD SERVER AUDIO");
   const source = audioContext.createBufferSource();
   source.buffer = audioBuffer;
   source.connect(destination);
