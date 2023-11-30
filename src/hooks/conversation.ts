@@ -43,6 +43,8 @@ export const useConversation = (
   currentSpeaker: CurrentSpeaker;
   callDetails: CallDetails | undefined;
 } => {
+  const comboChunksRef = React.useRef([]);
+  const combinedStreamDestRef = React.useRef<MediaStreamAudioDestinationNode>();
   const [audioContext, setAudioContext] = React.useState<AudioContext>();
   const [audioAnalyser, setAudioAnalyser] = React.useState<AnalyserNode>();
   const [callDetails, setCallDetails] = React.useState<CallDetails>();
@@ -63,10 +65,13 @@ export const useConversation = (
 
   // get audio context and metadata about user audio
   React.useEffect(() => {
-    const audioContext = new AudioContext();
-    setAudioContext(audioContext);
-    const audioAnalyser = audioContext.createAnalyser();
+    const _audioContext = new AudioContext();
+    setAudioContext(_audioContext);
+    const audioAnalyser = _audioContext.createAnalyser();
     setAudioAnalyser(audioAnalyser);
+
+    combinedStreamDestRef.current =
+      _audioContext.createMediaStreamDestination();
   }, []);
 
   const recordingDataListener = ({ data }: { data: Blob }) => {
@@ -80,9 +85,9 @@ export const useConversation = (
         socket.send(stringify(audioMessage));
     });
   };
-  const comboChunks = React.useRef([]);
+
   const comboRecordingDataListener = ({ data }: { data: Blob }) => {
-    comboChunks.current.push(data);
+    comboChunksRef.current.push(data);
   };
 
   // once the conversation is connected, stream the microphone audio into the socket
@@ -113,8 +118,6 @@ export const useConversation = (
     registerWav().catch(console.error);
   }, []);
 
-  const combinedStreamDest = audioContext.createMediaStreamDestination();
-
   // play audio that is queued
   React.useEffect(() => {
     const playArrayBuffer = (arrayBuffer: ArrayBuffer) => {
@@ -143,7 +146,11 @@ export const useConversation = (
           audio,
           audioContext
         );
-        __playAudioBuffer(audioBuffer, audioContext, combinedStreamDest);
+        __playAudioBuffer(
+          audioBuffer,
+          audioContext,
+          combinedStreamDestRef.current
+        );
       };
       __addServerAudioToComboRecording();
 
@@ -333,7 +340,7 @@ export const useConversation = (
      * the call is complete.
      */
     const micSource = audioContext.createMediaStreamSource(audioStream);
-    micSource.connect(combinedStreamDest);
+    micSource.connect(combinedStreamDestRef.current);
 
     const micSettings = audioStream.getAudioTracks()[0].getSettings();
 
@@ -391,12 +398,17 @@ export const useConversation = (
     if (combinedRecorderToUse && combinedRecorderToUse.state === "paused") {
       combinedRecorderToUse.resume();
     } else if (!combinedRecorderToUse) {
-      combinedRecorderToUse = new MediaRecorder(combinedStreamDest.stream, {
-        mimeType: "audio/wav",
-      });
+      combinedRecorderToUse = new MediaRecorder(
+        combinedStreamDestRef.current.stream,
+        {
+          mimeType: "audio/wav",
+        }
+      );
       setAgentAndUserRecorder(combinedRecorderToUse);
       combinedRecorderToUse.onstop = () => {
-        const audioBlob = new Blob(comboChunks.current, { type: "audio/wav" });
+        const audioBlob = new Blob(comboChunksRef.current, {
+          type: "audio/wav",
+        });
         const audioUrl = URL.createObjectURL(audioBlob);
         // Create a link to download the audio
         const downloadLink = document.createElement("a");
