@@ -11,6 +11,7 @@ import {
   CurrentSpeaker,
   SelfHostedConversationConfig,
   Transcript,
+  CallDetails,
 } from "../types/conversation";
 import { blobToBase64, stringify } from "../utils";
 import { AudioEncoding } from "../types/vocode/audioEncoding";
@@ -20,11 +21,7 @@ import {
   StartMessage,
   StopMessage,
 } from "../types/vocode/websocket";
-import {
-  DeepgramTranscriberConfig,
-  TranscriberConfig,
-  CallDetails,
-} from "../types";
+import { DeepgramTranscriberConfig, TranscriberConfig } from "../types";
 import { isSafari, isChrome } from "react-device-detect";
 import { Buffer } from "buffer";
 

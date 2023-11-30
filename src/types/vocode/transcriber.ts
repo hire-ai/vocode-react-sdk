@@ -23,15 +23,6 @@ export interface PunctuationEndpointingConfig extends EndpointingConfig {
   timeCutoffSeconds?: number;
 }
 
-export interface CallDetails {
-  callId: string;
-  callerId: string;
-  orgId: string;
-  orgLocationId: string;
-  fromPhone: string;
-  toPhone: string;
-}
-
 export interface TranscriberConfig {
   type: string;
   samplingRate: number;

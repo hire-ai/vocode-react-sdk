@@ -19,6 +19,15 @@ export type VocodeConfig = {
   baseUrl?: string;
 };
 
+export type CallDetails = {
+  callId: string;
+  callerId: string;
+  orgId: string;
+  orgLocationId: string;
+  fromPhone: string;
+  toPhone: string;
+};
+
 export type ConversationConfig = {
   audioDeviceConfig: AudioDeviceConfig;
   transcriberConfig: Omit<TranscriberConfig, "samplingRate" | "audioEncoding">;
