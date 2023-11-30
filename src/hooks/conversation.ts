@@ -275,6 +275,8 @@ export const useConversation = (
     try {
       const trackConstraints: MediaTrackConstraints = {
         echoCancellation: true,
+        noiseSuppression: true,
+        autoGainControl: true,
       };
       if (config.audioDeviceConfig.inputDeviceId) {
         trackConstraints.deviceId = config.audioDeviceConfig.inputDeviceId;
