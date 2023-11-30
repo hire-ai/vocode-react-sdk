@@ -81,14 +81,26 @@ export const useConversation = (
     });
   };
 
+  const comboRecordingDataListener = ({ data }: { data: Blob }) => {
+    console.log("COMBO RECORDER GOT DATA:", data);
+  };
+
   // once the conversation is connected, stream the microphone audio into the socket
   React.useEffect(() => {
     if (!recorder || !socket) return;
     if (status === "connected") {
       if (active) {
         recorder.addEventListener("dataavailable", recordingDataListener);
+        agentAndUserRecorder.addEventListener(
+          "dataavailable",
+          comboRecordingDataListener
+        );
       } else {
         recorder.removeEventListener("dataavailable", recordingDataListener);
+        agentAndUserRecorder.removeEventListener(
+          "dataavailable",
+          comboRecordingDataListener
+        );
       }
     }
   }, [recorder, agentAndUserRecorder, socket, status, active]);
@@ -320,7 +332,9 @@ export const useConversation = (
     micSource.connect(combinedStreamDest);
 
     // create combo media recorder
-    const _combinedRecorder = new MediaRecorder(combinedStreamDest.stream);
+    const _combinedRecorder = new MediaRecorder(combinedStreamDest.stream, {
+      mimeType: "audio/wav",
+    });
     let comboChunks: any = [];
 
     _combinedRecorder.ondataavailable = (event) => {
@@ -340,8 +354,6 @@ export const useConversation = (
       downloadLink.download = "combo_conversation.wav";
       downloadLink.click();
     };
-    _combinedRecorder.start();
-    setAgentAndUserRecorder(_combinedRecorder);
 
     const micSettings = audioStream.getAudioTracks()[0].getSettings();
 
@@ -394,6 +406,9 @@ export const useConversation = (
       });
       setRecorder(recorderToUse);
     }
+
+    _combinedRecorder.start();
+    setAgentAndUserRecorder(_combinedRecorder);
 
     let timeSlice;
     if ("transcriberConfig" in startMessage) {
