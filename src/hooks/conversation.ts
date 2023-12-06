@@ -166,6 +166,7 @@ export const useConversation = (
         echoCancellation: true,
         noiseSuppression: true,
         autoGainControl: true,
+        sampleRate: 8000,
       };
       if (config.audioDeviceConfig.inputDeviceId) {
         trackConstraints.deviceId = config.audioDeviceConfig.inputDeviceId;
