@@ -166,7 +166,6 @@ export const useConversation = (
         echoCancellation: true,
         noiseSuppression: true,
         autoGainControl: true,
-        sampleRate: 8000,
       };
       if (config.audioDeviceConfig.inputDeviceId) {
         trackConstraints.deviceId = config.audioDeviceConfig.inputDeviceId;
@@ -175,7 +174,6 @@ export const useConversation = (
         video: false,
         audio: trackConstraints,
       });
-      console.log("audioStream: ", audioStream);
     } catch (error) {
       if (error instanceof DOMException && error.name === "NotAllowedError") {
         alert(
@@ -197,8 +195,6 @@ export const useConversation = (
     micSource.connect(combinedStreamDestRef.current);
 
     const micSettings = audioStream.getAudioTracks()[0].getSettings();
-    console.log("micSettings: ", micSettings);
-    console.log("audioContext: ", audioContext);
 
     const inputAudioMetadata = {
       samplingRate: micSettings.sampleRate || audioContext.sampleRate,
