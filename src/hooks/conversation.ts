@@ -82,7 +82,6 @@ export const useConversation = (
     audioAnalyser,
     setCurrentSpeaker,
     audioQueue,
-    setAudioQueue,
     setProcessing,
     processing,
     combinedStreamDestRef,
@@ -315,6 +314,7 @@ export const useConversation = (
       combinedRecorderToUse.start(timeSlice);
     }
   };
+
   const __stop = () => {
     setAudioQueue([]);
     setCurrentSpeaker("none");
