@@ -82,7 +82,8 @@ export const _usePlayServerAudio = ({
 
       // @ts-ignore
       // const audioBuffer = Buffer.from(audio, "base64");
-      playArrayBuffer(audioBuffer);
+      // playArrayBuffer(audioBuffer);
+      playAudioBuffer(audioBuffer, audioContext, audioContext.destination);
 
       // if (audioBuffer) {
       //   fetch(URL.createObjectURL(new Blob([audioBuffer])))
