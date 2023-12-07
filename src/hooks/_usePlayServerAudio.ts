@@ -23,7 +23,7 @@ export const _usePlayServerAudio = ({
   React.useEffect(() => {
     const playArrayBuffer = (arrayBuffer: ArrayBuffer) => {
       console.log("playArrayBuffer:", arrayBuffer);
-      if (audioContext && audioAnalyser) {
+      if (audioContext && audioAnalyser && arrayBuffer.byteLength > 1381) {
         try {
           audioContext.decodeAudioData(
             arrayBuffer,
