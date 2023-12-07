@@ -36,7 +36,7 @@ export const _usePlayServerAudio = ({
       setAudioQueue((x) => x.slice(processedChunks));
     }
     bulkProcessAudioQueue();
-  }, [audioQueue]);
+  }, [audioQueue.length]);
 
   React.useEffect(() => {
     const playArrayBuffer = (arrayBuffer: ArrayBuffer) => {
@@ -91,5 +91,5 @@ export const _usePlayServerAudio = ({
       //     .then(playArrayBuffer);
       // }
     }
-  }, [buffers, processing]);
+  }, [buffers.length, processing]);
 };
