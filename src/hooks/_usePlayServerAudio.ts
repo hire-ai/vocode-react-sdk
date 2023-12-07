@@ -44,16 +44,18 @@ export const _usePlayServerAudio = ({
       setProcessing(true);
       const audio = audioQueue.shift();
 
-      const __addServerAudioToComboRecording = async () => {
-        // @ts-ignore
-        const audioBuffer = await genBase64ToAudioBuffer(audio, audioContext);
-        playAudioBuffer(
-          audioBuffer,
-          audioContext,
-          combinedStreamDestRef.current
-        );
-      };
-      __addServerAudioToComboRecording();
+      // const __addServerAudioToComboRecording = async () => {
+      //   // @ts-ignore
+      //   const audioBuffer = await genBase64ToAudioBuffer(audio, audioContext);
+      //   playAudioBuffer(
+      //     audioBuffer,
+      //     audioContext,
+      //     combinedStreamDestRef.current
+      //   );
+      // };
+      // __addServerAudioToComboRecording();
+
+      console.log("audio: ", audio);
 
       // @ts-ignore
       const audioBuffer = Buffer.from(audio, "base64");
