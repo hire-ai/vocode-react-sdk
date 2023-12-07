@@ -1,0 +1,35 @@
+{
+  "name": "vocode",
+  "version": "1.0.37",
+  "description": "",
+  "homepage": "https://vocode.dev",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/vocodedev/vocode-react-sdk.git"
+  },
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "npx tsc",
+    "prepublish": "npx tsc"
+  },
+  "keywords": [
+    "conversation",
+    "voice",
+    "voicebot",
+    "chatbot",
+    "audio"
+  ],
+  "author": "Ajay Raj <ajay@vocode.dev>",
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^4.9.5"
+  },
+  "dependencies": {
+    "buffer": "^6.0.3",
+    "extendable-media-recorder": "^7.1.5",
+    "extendable-media-recorder-wav-encoder": "^7.0.84",
+    "react-device-detect": "^2.2.3",
+    "snake-case": "^3.0.4"
+  }
+}
