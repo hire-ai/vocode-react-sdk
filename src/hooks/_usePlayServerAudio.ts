@@ -55,10 +55,14 @@ export const _usePlayServerAudio = ({
       // };
       // __addServerAudioToComboRecording();
 
+      console.log(" ");
       console.log("audio: ", audio);
 
       // @ts-ignore
       const audioBuffer = Buffer.from(audio, "base64");
+      const base64String = audioBuffer.toString("base64");
+      console.log("base64String: ", base64String);
+
       if (audioBuffer) {
         fetch(URL.createObjectURL(new Blob([audioBuffer])))
           .then((response) => response.arrayBuffer())
