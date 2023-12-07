@@ -23,20 +23,24 @@ export const _usePlayServerAudio = ({
   React.useEffect(() => {
     const playArrayBuffer = (arrayBuffer: ArrayBuffer) => {
       if (audioContext && audioAnalyser) {
-        audioContext.decodeAudioData(arrayBuffer, (buffer) => {
-          const source = audioContext.createBufferSource();
-          source.buffer = buffer;
-          source.connect(audioContext.destination);
-          source.connect(audioAnalyser);
-          setCurrentSpeaker("agent");
-          source.start(0);
-          source.onended = () => {
-            if (audioQueue.length <= 0) {
-              setCurrentSpeaker("user");
-            }
-            setProcessing(false);
-          };
-        });
+        audioContext
+          .decodeAudioData(arrayBuffer, (buffer) => {
+            const source = audioContext.createBufferSource();
+            source.buffer = buffer;
+            source.connect(audioContext.destination);
+            source.connect(audioAnalyser);
+            setCurrentSpeaker("agent");
+            source.start(0);
+            source.onended = () => {
+              if (audioQueue.length <= 0) {
+                setCurrentSpeaker("user");
+              }
+              setProcessing(false);
+            };
+          })
+          .catch((err) => {
+            console.log(err);
+          });
       }
     };
     if (!processing && audioQueue.length > 0) {
