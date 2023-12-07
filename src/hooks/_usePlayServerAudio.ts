@@ -23,54 +23,37 @@ export const _usePlayServerAudio = ({
   React.useEffect(() => {
     const playArrayBuffer = (arrayBuffer: ArrayBuffer) => {
       console.log("playArrayBuffer:", arrayBuffer);
-      if (audioContext && audioAnalyser && arrayBuffer.byteLength >= 1381) {
-        try {
-          audioContext.decodeAudioData(
-            arrayBuffer,
-            (buffer) => {
-              try {
-                console.log("IN DECODE AUDIO DATA: ", arrayBuffer, buffer);
-                const source = audioContext.createBufferSource();
-                source.buffer = buffer;
-                source.connect(audioContext.destination);
-                source.connect(audioAnalyser);
-                setCurrentSpeaker("agent");
-                source.start(0);
-                source.onended = () => {
-                  if (audioQueue.length <= 0) {
-                    setCurrentSpeaker("user");
-                  }
-                  setProcessing(false);
-                };
-              } catch (e) {
-                console.log("INNSER ERROR: ", e);
-              }
-
-              console.log("DONE");
-            },
-            (error) => {
-              console.log("decodeAudioData ERROR: ", error);
+      if (audioContext && audioAnalyser) {
+        audioContext.decodeAudioData(arrayBuffer, (buffer) => {
+          const source = audioContext.createBufferSource();
+          source.buffer = buffer;
+          source.connect(audioContext.destination);
+          source.connect(audioAnalyser);
+          setCurrentSpeaker("agent");
+          source.start(0);
+          source.onended = () => {
+            if (audioQueue.length <= 0) {
+              setCurrentSpeaker("user");
             }
-          );
-        } catch (error) {
-          console.log("CATCH ERROR: ", error);
-        }
+            setProcessing(false);
+          };
+        });
       }
     };
     if (!processing && audioQueue.length > 0) {
       setProcessing(true);
       const audio = audioQueue.shift();
 
-      // const __addServerAudioToComboRecording = async () => {
-      //   // @ts-ignore
-      //   const audioBuffer = await genBase64ToAudioBuffer(audio, audioContext);
-      //   playAudioBuffer(
-      //     audioBuffer,
-      //     audioContext,
-      //     combinedStreamDestRef.current
-      //   );
-      // };
-      // __addServerAudioToComboRecording();
+      const __addServerAudioToComboRecording = async () => {
+        // @ts-ignore
+        const audioBuffer = await genBase64ToAudioBuffer(audio, audioContext);
+        playAudioBuffer(
+          audioBuffer,
+          audioContext,
+          combinedStreamDestRef.current
+        );
+      };
+      __addServerAudioToComboRecording();
 
       // @ts-ignore
       const audioBuffer = Buffer.from(audio, "base64");
