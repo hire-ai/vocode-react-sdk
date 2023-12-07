@@ -60,8 +60,8 @@ export const _usePlayServerAudio = ({
 
       // @ts-ignore
       const audioBuffer = Buffer.from(audio, "base64");
-      const base64String = audioBuffer.toString("base64");
-      console.log("base64String: ", base64String);
+      // const base64String = audioBuffer.toString("base64");
+      // console.log("base64String: ", base64String);
 
       if (audioBuffer) {
         fetch(URL.createObjectURL(new Blob([audioBuffer])))
