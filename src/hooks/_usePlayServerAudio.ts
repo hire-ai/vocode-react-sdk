@@ -26,6 +26,7 @@ export const _usePlayServerAudio = ({
       audioContext &&
         audioAnalyser &&
         audioContext.decodeAudioData(arrayBuffer, (buffer) => {
+          console.log("IN DECODE AUDIO DATA: ", arrayBuffer, buffer);
           const source = audioContext.createBufferSource();
           source.buffer = buffer;
           source.connect(audioContext.destination);
@@ -38,6 +39,7 @@ export const _usePlayServerAudio = ({
             }
             setProcessing(false);
           };
+          console.log("DONE");
         });
     };
     if (!processing && audioQueue.length > 0) {
