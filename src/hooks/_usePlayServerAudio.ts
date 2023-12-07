@@ -23,6 +23,7 @@ export const _usePlayServerAudio = ({
   React.useEffect(() => {
     const playArrayBuffer = (arrayBuffer: ArrayBuffer) => {
       if (audioContext && audioAnalyser) {
+        console.log("playArrayBuffer:", arrayBuffer);
         audioContext.decodeAudioData(arrayBuffer, (buffer) => {
           const source = audioContext.createBufferSource();
           source.buffer = buffer;
