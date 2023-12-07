@@ -24,20 +24,26 @@ export const _usePlayServerAudio = ({
     const playArrayBuffer = (arrayBuffer: ArrayBuffer) => {
       if (audioContext && audioAnalyser) {
         console.log("playArrayBuffer:", arrayBuffer);
-        audioContext.decodeAudioData(arrayBuffer, (buffer) => {
-          const source = audioContext.createBufferSource();
-          source.buffer = buffer;
-          source.connect(audioContext.destination);
-          source.connect(audioAnalyser);
-          setCurrentSpeaker("agent");
-          source.start(0);
-          source.onended = () => {
-            if (audioQueue.length <= 0) {
-              setCurrentSpeaker("user");
-            }
+        audioContext
+          .decodeAudioData(arrayBuffer, (buffer) => {
+            const source = audioContext.createBufferSource();
+            source.buffer = buffer;
+            source.connect(audioContext.destination);
+            source.connect(audioAnalyser);
+            setCurrentSpeaker("agent");
+            source.start(0);
+            source.onended = () => {
+              if (audioQueue.length <= 0) {
+                setCurrentSpeaker("user");
+              }
+              setProcessing(false);
+            };
+          })
+          .catch((error) => {
+            console.error("Error decoding audio data", error);
             setProcessing(false);
-          };
-        });
+            // Handle the error appropriately
+          });
       }
     };
     if (!processing && audioQueue.length > 0) {
@@ -55,13 +61,7 @@ export const _usePlayServerAudio = ({
       // };
       // __addServerAudioToComboRecording();
 
-      console.log(" ");
-      console.log("audio: ", audio);
-
-      // @ts-ignore
       const audioBuffer = Buffer.from(audio, "base64");
-      // const base64String = audioBuffer.toString("base64");
-      // console.log("base64String: ", base64String);
 
       if (audioBuffer) {
         fetch(URL.createObjectURL(new Blob([audioBuffer])))
