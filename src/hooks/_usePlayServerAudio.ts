@@ -20,6 +20,7 @@ export const _usePlayServerAudio = ({
   processing: boolean;
   combinedStreamDestRef: React.RefObject<MediaStreamAudioDestinationNode>;
 }) => {
+  console.log("audioQueue:", audioQueue.length);
   React.useEffect(() => {
     const playArrayBuffer = (arrayBuffer: ArrayBuffer) => {
       if (audioContext && audioAnalyser) {
