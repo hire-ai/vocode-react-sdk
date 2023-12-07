@@ -28,6 +28,7 @@ export const _usePlayServerAudio = ({
   React.useEffect(() => {
     async function bulkProcessAudioQueue() {
       const newBuffers = await Promise.all(
+        // @ts-ignore
         audioQueue.map((audio) => genBase64ToAudioBuffer(audio, audioContext))
       );
       setBuffers((x) => [...x, ...newBuffers]);
