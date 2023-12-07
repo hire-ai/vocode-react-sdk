@@ -61,6 +61,7 @@ export const _usePlayServerAudio = ({
       // };
       // __addServerAudioToComboRecording();
 
+      // @ts-ignore
       const audioBuffer = Buffer.from(audio, "base64");
 
       if (audioBuffer) {
