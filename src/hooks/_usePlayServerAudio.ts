@@ -47,7 +47,7 @@ export const _usePlayServerAudio = ({
       }
     };
     if (!processing && audioQueue.length > 0) {
-      // setProcessing(true);
+      setProcessing(true);
       const audio = audioQueue.shift();
 
       const __addServerAudioToComboRecording = async () => {
