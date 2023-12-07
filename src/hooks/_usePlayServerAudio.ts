@@ -28,19 +28,24 @@ export const _usePlayServerAudio = ({
           audioContext.decodeAudioData(
             arrayBuffer,
             (buffer) => {
-              console.log("IN DECODE AUDIO DATA: ", arrayBuffer, buffer);
-              const source = audioContext.createBufferSource();
-              source.buffer = buffer;
-              source.connect(audioContext.destination);
-              source.connect(audioAnalyser);
-              setCurrentSpeaker("agent");
-              source.start(0);
-              source.onended = () => {
-                if (audioQueue.length <= 0) {
-                  setCurrentSpeaker("user");
-                }
-                setProcessing(false);
-              };
+              try {
+                console.log("IN DECODE AUDIO DATA: ", arrayBuffer, buffer);
+                const source = audioContext.createBufferSource();
+                source.buffer = buffer;
+                source.connect(audioContext.destination);
+                source.connect(audioAnalyser);
+                setCurrentSpeaker("agent");
+                source.start(0);
+                source.onended = () => {
+                  if (audioQueue.length <= 0) {
+                    setCurrentSpeaker("user");
+                  }
+                  setProcessing(false);
+                };
+              } catch (e) {
+                console.log("INNSER ERROR: ", e);
+              }
+
               console.log("DONE");
             },
             (error) => {
