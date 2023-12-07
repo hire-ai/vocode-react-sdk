@@ -8,6 +8,7 @@ export const _usePlayServerAudio = ({
   audioAnalyser,
   setCurrentSpeaker,
   audioQueue,
+  setAudioQueue,
   setProcessing,
   processing,
   combinedStreamDestRef,
@@ -17,10 +18,25 @@ export const _usePlayServerAudio = ({
   setCurrentSpeaker: React.Dispatch<React.SetStateAction<boolean>>;
   audioQueue: Buffer[];
   setProcessing: React.Dispatch<React.SetStateAction<boolean>>;
+  setAudioQueue: React.Dispatch<React.SetStateAction<Buffer[]>>;
   processing: boolean;
   combinedStreamDestRef: React.RefObject<MediaStreamAudioDestinationNode>;
 }) => {
   console.log("audioQueue:", audioQueue.length);
+  const [buffers, setBuffers] = React.useState<ArrayBuffer>([]);
+
+  React.useEffect(() => {
+    async function bulkProcessAudioQueue() {
+      const newBuffers = await Promise.all(
+        audioQueue.map((audio) => genBase64ToAudioBuffer(audio, audioContext))
+      );
+      setBuffers((x) => [...x, ...newBuffers]);
+      const processedChunks = audioQueue.length;
+      setAudioQueue((x) => x.slice(processedChunks));
+    }
+    bulkProcessAudioQueue();
+  }, [audioQueue]);
+
   React.useEffect(() => {
     const playArrayBuffer = (arrayBuffer: ArrayBuffer) => {
       if (audioContext && audioAnalyser) {
@@ -47,13 +63,14 @@ export const _usePlayServerAudio = ({
           });
       }
     };
-    if (!processing && audioQueue.length > 0) {
+    if (!processing && buffers.length > 0) {
       setProcessing(true);
-      const audio = audioQueue.shift();
+      // TODO: maybe even combine many of these chunks together
+      const audioBuffer = buffers.shift();
 
       const __addServerAudioToComboRecording = async () => {
         // @ts-ignore
-        const audioBuffer = await genBase64ToAudioBuffer(audio, audioContext);
+        // const audioBuffer = await genBase64ToAudioBuffer(audio, audioContext);
         playAudioBuffer(
           audioBuffer,
           audioContext,
@@ -63,13 +80,14 @@ export const _usePlayServerAudio = ({
       __addServerAudioToComboRecording();
 
       // @ts-ignore
-      const audioBuffer = Buffer.from(audio, "base64");
+      // const audioBuffer = Buffer.from(audio, "base64");
+      playArrayBuffer(audioBuffer);
 
-      if (audioBuffer) {
-        fetch(URL.createObjectURL(new Blob([audioBuffer])))
-          .then((response) => response.arrayBuffer())
-          .then(playArrayBuffer);
-      }
+      // if (audioBuffer) {
+      //   fetch(URL.createObjectURL(new Blob([audioBuffer])))
+      //     .then((response) => response.arrayBuffer())
+      //     .then(playArrayBuffer);
+      // }
     }
-  }, [audioQueue, processing]);
+  }, [buffers, processing]);
 };

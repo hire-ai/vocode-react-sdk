@@ -82,6 +82,7 @@ export const useConversation = (
     audioAnalyser,
     setCurrentSpeaker,
     audioQueue,
+    setAudioQueue,
     setProcessing,
     processing,
     combinedStreamDestRef,
